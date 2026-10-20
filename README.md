@@ -30,10 +30,6 @@ Follow the Expo CLI instructions to open the app in Expo Go, an emulator, or a w
 
 ## Screenshots
 
-### Splash screen
+### Splash screen + Home page with activities
 
-![Ma Garderie splash screen](screenshots/01-splash.png)
-
-### Home page with activities
-
-![Ma Garderie home page and activity list](screenshots/02-home.png)
+(screenshots/01-splash.png)(screenshots/02-home.png)
