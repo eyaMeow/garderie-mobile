@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Image, ActivityIndicator, FlatList, TouchableOpacity, SafeAreaView, Platform, StatusBar, Alert } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, Text, View, Image, ActivityIndicator, FlatList, TouchableOpacity, SafeAreaView, ListRenderItem } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from 'expo-router';
 
 // This list has the activities shown on the page.
 const ACTIVITES = [
@@ -11,15 +12,31 @@ const ACTIVITES = [
   { id: 5, titre: "Activités sportives", description: "Développement de la motricité", icone: "⚽" }
 ];
 
+// This shows the list of activities on the home page.
 export default function Page() {
+  // This lets the menu button open the drawer.
+  const navigation = useNavigation<{ openDrawer: () => void }>();
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // This says if the page is ready to show.
   const [isReady, setIsReady] = useState(false);
 
   // This waits three seconds, then shows the page.
   useEffect(() => {
-    const timer = setTimeout(() => setIsReady(true), 3000);
-    return () => clearTimeout(timer);
+    const splashTimer = setTimeout(() => setIsReady(true), 3000);
+    return () => {
+      clearTimeout(splashTimer);
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    };
   }, []);
+
+  // This shows a short message after a tap.
+  const showToast = (message: string) => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToastMessage(message);
+    toastTimer.current = setTimeout(() => setToastMessage(null), 2500);
+  };
 
   // This shows a loading screen while the page is not ready.
   if (!isReady) {
@@ -33,8 +50,11 @@ export default function Page() {
   }
 
   // This makes one card for each activity.
-  const renderItem = ({ item }: { item: typeof ACTIVITES[number] }) => (
-    <TouchableOpacity style={styles.card} onPress={() => Alert.alert("Activité sélectionnée", item.titre)}>
+  const renderItem: ListRenderItem<(typeof ACTIVITES)[number]> = ({ item }) => (
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => showToast(item.titre)}
+    >
       <Text style={styles.cardIcon}>{item.icone}</Text>
       <View style={styles.cardContent}>
         <Text style={styles.cardTitle}>{item.titre}</Text>
@@ -43,15 +63,18 @@ export default function Page() {
     </TouchableOpacity>
   );
 
-  // This is the main page with its title, content, and add button.
   return (
     <SafeAreaView style={styles.container}>
+      {/* AppBar */}
       <View style={styles.appBar}>
-        <TouchableOpacity onPress={() => Alert.alert("Menu", "Drawer: Accueil, Activités, À propos")}><Ionicons name="menu" size={24} color="#fff" /></TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.openDrawer()}>
+          <Ionicons name="menu" size={24} color="#fff" />
+        </TouchableOpacity>
         <Text style={styles.appBarTitle}>Ma Garderie</Text>
         <View style={{ width: 24 }} />
       </View>
 
+      {/* Activities List */}
       <FlatList
         data={ACTIVITES}
         renderItem={renderItem}
@@ -59,9 +82,18 @@ export default function Page() {
         contentContainerStyle={styles.listContainer}
       />
 
-      <TouchableOpacity style={styles.fab} onPress={() => Alert.alert("Information", "Nouvelle activité")}>
+      {/* Floating Action Button */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => showToast("Nouvelle activité")}
+      >
         <Ionicons name="add" size={28} color="#fff" />
       </TouchableOpacity>
+      {toastMessage && (
+        <View accessibilityRole="alert" style={styles.toast}>
+          <Text style={styles.toastText}>{toastMessage}</Text>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -72,7 +104,7 @@ const styles = StyleSheet.create({
   splashImage: { width: 120, height: 120, marginBottom: 20 },
   splashTitle: { fontSize: 28, fontWeight: 'bold', color: '#ff6b6b', marginBottom: 20 },
   loader: { marginTop: 10 },
-  container: { flex: 1, backgroundColor: '#f5f5f5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
+  container: { flex: 1, backgroundColor: '#f5f5f5' },
   appBar: { height: 60, backgroundColor: '#ff6b6b', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 },
   appBarTitle: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
   listContainer: { padding: 16 },
@@ -81,5 +113,7 @@ const styles = StyleSheet.create({
   cardContent: { flex: 1 },
   cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#333' },
   cardDescription: { fontSize: 14, color: '#666', marginTop: 4 },
-  fab: { position: 'absolute', right: 20, bottom: 20, backgroundColor: '#ff6b6b', width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', elevation: 4 }
+  fab: { position: 'absolute', right: 20, bottom: 20, backgroundColor: '#ff6b6b', width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', elevation: 4 },
+  toast: { position: 'absolute', bottom: 88, alignSelf: 'center', backgroundColor: '#333', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 24, elevation: 5 },
+  toastText: { color: '#fff', fontSize: 16 }
 });
