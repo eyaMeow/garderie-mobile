@@ -32,4 +32,6 @@ Follow the Expo CLI instructions to open the app in Expo Go, an emulator, or a w
 
 ### Splash screen + Home page with activities
 
-(screenshots/01-splash.png)(screenshots/02-home.png)
+| Splash Screen | Home Page |
+| :---: | :---: |
+| ![Splash Screen](screenshots/01-splash.png) | ![Home Page](screenshots/02-home.png) |
