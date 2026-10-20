@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Image, ActivityIndicator, FlatList, TouchableOpacity, SafeAreaView, Platform, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, Image, ActivityIndicator, FlatList, TouchableOpacity, SafeAreaView, Platform, StatusBar, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 // This list has the activities shown on the page.
@@ -34,20 +34,20 @@ export default function Page() {
 
   // This makes one card for each activity.
   const renderItem = ({ item }: { item: typeof ACTIVITES[number] }) => (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={() => Alert.alert("Activité sélectionnée", item.titre)}>
       <Text style={styles.cardIcon}>{item.icone}</Text>
       <View style={styles.cardContent}>
         <Text style={styles.cardTitle}>{item.titre}</Text>
         <Text style={styles.cardDescription}>{item.description}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   // This is the main page with its title, content, and add button.
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.appBar}>
-        <TouchableOpacity><Ionicons name="menu" size={24} color="#fff" /></TouchableOpacity>
+        <TouchableOpacity onPress={() => Alert.alert("Menu", "Drawer: Accueil, Activités, À propos")}><Ionicons name="menu" size={24} color="#fff" /></TouchableOpacity>
         <Text style={styles.appBarTitle}>Ma Garderie</Text>
         <View style={{ width: 24 }} />
       </View>
@@ -59,7 +59,7 @@ export default function Page() {
         contentContainerStyle={styles.listContainer}
       />
 
-      <TouchableOpacity style={styles.fab}>
+      <TouchableOpacity style={styles.fab} onPress={() => Alert.alert("Information", "Nouvelle activité")}>
         <Ionicons name="add" size={28} color="#fff" />
       </TouchableOpacity>
     </SafeAreaView>
